@@ -118,6 +118,7 @@ public class PlayerMovement : MonoBehaviour
 
         if (Physics2D.Raycast(transform.position, transform.right, checkWallDistance, layerGround))
         {
+
             Flip();
             rb.velocity = new Vector2(0f, rb.velocity.y);
         }
