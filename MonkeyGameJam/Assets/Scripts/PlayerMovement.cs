@@ -6,6 +6,7 @@ public class PlayerMovement : MonoBehaviour
 {
     [Header("Movement")]
     [SerializeField] float speed = 1f;
+    [SerializeField] float maxSpeed = 10f;
     [SerializeField] float maxVelocityChange = 10f;
 
 
@@ -91,7 +92,7 @@ public class PlayerMovement : MonoBehaviour
         if (isStandingStill)
             return;
 
-        rb.AddForce(new Vector2(input * speed, 0f), ForceMode2D.Force);
+        rb.velocity = new Vector2(transform.right.x * speed, rb.velocity.y);
     }
 
     void Flip()
@@ -118,7 +119,7 @@ public class PlayerMovement : MonoBehaviour
         if (Physics2D.Raycast(transform.position, transform.right, checkWallDistance, layerGround))
         {
             Flip();
-            speed *= -1;
+            rb.velocity = new Vector2(0f, rb.velocity.y);
         }
     }
 
