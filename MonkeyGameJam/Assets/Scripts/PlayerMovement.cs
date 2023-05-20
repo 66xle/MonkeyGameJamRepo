@@ -8,7 +8,7 @@ public class PlayerMovement : MonoBehaviour
     [SerializeField] float speed = 1f;
     [SerializeField] float maxSpeed = 10f;
     [SerializeField] float maxVelocityChange = 10f;
-
+    
 
     [Header("Jump")]
     [SerializeField] float jumpHeight;
@@ -33,30 +33,36 @@ public class PlayerMovement : MonoBehaviour
     [SerializeField] Vector3 boxOffset;
     private bool isGrounded = false;
 
-    private Rigidbody2D rb;
+    
 
     float input;
 
     private bool isFlipped = false;
     public bool isStandingStill = true;
+    private bool isFalling = false;
+
+    private Animator animController;
+    private Rigidbody2D rb;
 
     // Start is called before the first frame update
     void Start()
     {
         rb = GetComponent<Rigidbody2D>();
+        animController = GetComponent<Animator>();
     }
 
     // Update is called once per frame
     void Update()
     {
+        animController.SetFloat("Velocity", rb.velocity.y);
+
         GroundCheck();
 
+        Fall();
         Jump();
 
         StandStill();
         SwitchDirection();
-
-        
     }
 
     private void FixedUpdate()
@@ -85,12 +91,15 @@ public class PlayerMovement : MonoBehaviour
             Flip();
 
         isStandingStill = false;
+        animController.SetBool("isIdle", false);
     }
 
     void Movement()
     {
         if (isStandingStill)
+        {
             return;
+        }
 
         rb.velocity = new Vector2(transform.right.x * speed, rb.velocity.y);
     }
@@ -118,17 +127,14 @@ public class PlayerMovement : MonoBehaviour
 
         if (Physics2D.Raycast(transform.position, transform.right, checkWallDistance, layerGround))
         {
-
             Flip();
             rb.velocity = new Vector2(0f, rb.velocity.y);
         }
     }
 
-
     void Jump()
     {
         #region Coyote and Jump Buffer Timers
-
 
         // Coyote Time
         if (isGrounded && jumpCounter <= 0f)
@@ -144,7 +150,7 @@ public class PlayerMovement : MonoBehaviour
         }
 
         //Jump Buffer
-        if (Input.GetKeyDown(KeyCode.Space))
+        if (Input.GetKeyDown(KeyCode.Space) || Input.GetKeyDown(KeyCode.UpArrow))
         {
             jumpBufferCounter = jumpBufferTime;
         }
@@ -159,9 +165,9 @@ public class PlayerMovement : MonoBehaviour
             return;
 
         // Player jump input
-        if (Input.GetKeyDown(KeyCode.Space))
+        if (Input.GetKeyDown(KeyCode.Space) || Input.GetKeyDown(KeyCode.UpArrow))
         {
-            Debug.Log("test");
+            animController.SetTrigger("Jump");
 
             // Calculate Velocity
             rb.gravityScale = gravityScale;
@@ -176,6 +182,14 @@ public class PlayerMovement : MonoBehaviour
         } 
     }
 
+
+    void Fall()
+    {
+        if (rb.velocity.y < -20f && !isGrounded)
+        {
+            isFalling = true;
+        }
+    }
 
     void Gravity()
     {
@@ -195,10 +209,20 @@ public class PlayerMovement : MonoBehaviour
         if (Physics2D.OverlapBox(transform.position + boxOffset, boxSize, 0f, layerGround))
         {
             isGrounded = true;
+            animController.SetBool("isGrounded", true);
+
+            if (isFalling)
+            {
+                rb.velocity = Vector2.zero;
+                isFalling = false;
+                isStandingStill = true;
+                animController.SetBool("isIdle", true);
+            }
         }
         else
         {
             isGrounded = false;
+            animController.SetBool("isGrounded", false);
         }
     }
 
