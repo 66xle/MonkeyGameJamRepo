@@ -67,7 +67,7 @@ public class PlayerMovement : MonoBehaviour
         rb = GetComponent<Rigidbody2D>();
         animController = GetComponent<Animator>();
         rb.gravityScale = gravityScale;
-        currentBanana = maxBanana;
+        displayBananaCount.text = currentBanana.ToString();
     }
 
     // Update is called once per frame
@@ -249,9 +249,7 @@ public class PlayerMovement : MonoBehaviour
             // Set jump cooldown
             jumpCounter = jumpCooldown;
             jumpBufferCounter = 0f;
-        } 
-
-        
+        }
     }
 
     void Fall()
