@@ -336,6 +336,7 @@ public class PlayerMovement : MonoBehaviour
         }
 
         badBanana = true;
+        animController.SetTrigger("FireRun");
 
         bananaRed.SetActive(true);
         bananaYellow.SetActive(false);
