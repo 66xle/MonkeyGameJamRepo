@@ -188,7 +188,7 @@ public class PlayerMovement : MonoBehaviour
 
     void SwitchDirection()
     {
-        if (!isGrounded)
+        if (!isGrounded || isStandingStill)
             return;
 
         Debug.DrawRay(transform.position, transform.right * checkWallDistance, Color.red);
@@ -303,7 +303,8 @@ public class PlayerMovement : MonoBehaviour
             if (isFalling)
             {
                 audioFall.Play();
-                rb.velocity = Vector2.zero;
+                StartCoroutine(Slide());
+
                 isFalling = false;
                 isStandingStill = true;
                 animController.SetBool("isIdle", true);
@@ -314,6 +315,15 @@ public class PlayerMovement : MonoBehaviour
             isGrounded = false;
             animController.SetBool("isGrounded", false);
         }
+    }
+
+    IEnumerator Slide()
+    {
+        rb.velocity = new Vector2(transform.right.x * speed / 3, 0f);
+
+        yield return new WaitForSeconds(0.5f);
+
+        rb.velocity = Vector2.zero;
     }
 
     public void RefillBanana()
