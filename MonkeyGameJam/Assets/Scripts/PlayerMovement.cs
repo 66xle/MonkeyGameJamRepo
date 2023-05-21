@@ -12,6 +12,7 @@ public class PlayerMovement : MonoBehaviour
     
 
     [Header("Jump")]
+    [SerializeField] float reduceVelocity;
     [SerializeField] float jumpHeight;
     [SerializeField] float jumpCooldown;
     private float jumpCounter;
@@ -42,7 +43,10 @@ public class PlayerMovement : MonoBehaviour
     [SerializeField] Vector3 boxOffset;
     private bool isGrounded = false;
 
-    
+    [Header("Sounds")]
+    [SerializeField] List<AudioClip> grassFootsteps;
+    private int grassFootstepIndex;
+    [SerializeField] AudioSource audioGrassFS;
 
     float input;
 
@@ -76,6 +80,8 @@ public class PlayerMovement : MonoBehaviour
 
         StandStill();
         SwitchDirection();
+
+        Sounds();
     }
 
     private void FixedUpdate()
@@ -241,7 +247,7 @@ public class PlayerMovement : MonoBehaviour
     {
         if (!isHoldingJump && rb.velocity.y > 0f)
         {
-            rb.AddForce(new Vector2(0f, -10f));
+            rb.AddForce(new Vector2(0f, reduceVelocity));
         }
 
         if (rb.velocity.y < -20f && !isGrounded)
@@ -285,10 +291,29 @@ public class PlayerMovement : MonoBehaviour
         }
     }
 
-
     public void RefillBanana()
     {
         currentBanana = maxBanana;
         displayBananaCount.text = currentBanana.ToString();
+    }
+
+
+    void Sounds()
+    {
+        if (!isGrounded || isStandingStill)
+        {
+            //audioGrassFS.Stop();
+            return;
+        }
+
+        if (!audioGrassFS.isPlaying)
+        {
+            grassFootstepIndex++;
+            if (grassFootstepIndex >= grassFootsteps.Count)
+                grassFootstepIndex = 0;
+
+            audioGrassFS.clip = grassFootsteps[grassFootstepIndex];
+            audioGrassFS.Play();
+        }
     }
 }
