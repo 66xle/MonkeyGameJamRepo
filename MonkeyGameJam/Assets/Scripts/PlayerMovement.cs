@@ -14,10 +14,11 @@ public class PlayerMovement : MonoBehaviour
     [SerializeField] float jumpHeight;
     [SerializeField] float jumpCooldown;
     private float jumpCounter;
-    [SerializeField] float jumpCoyoteTime;
-    private float jumpCoyoteCounter;
+    [SerializeField] float coyoteTime;
+    private float coyoteTimeCounter;
     [SerializeField] float jumpBufferTime;
     private float jumpBufferCounter;
+    private bool isHoldingJump = false;
 
     [Header("Detect Wall")]
     [SerializeField] float checkWallDistance = 0.1f;
@@ -140,11 +141,11 @@ public class PlayerMovement : MonoBehaviour
         // Coyote Time
         if (isGrounded && jumpCounter <= 0f)
         {
-            jumpCoyoteCounter = jumpCoyoteTime;
+            coyoteTimeCounter = coyoteTime;
         }
         else
         {
-            jumpCoyoteCounter -= Time.deltaTime;
+            coyoteTimeCounter -= Time.deltaTime;
 
             // Jumping cooldown
             jumpCounter -= Time.deltaTime;
@@ -154,6 +155,7 @@ public class PlayerMovement : MonoBehaviour
         if (Input.GetKeyDown(KeyCode.Space) || Input.GetKeyDown(KeyCode.UpArrow))
         {
             jumpBufferCounter = jumpBufferTime;
+            Debug.Log(coyoteTimeCounter);
         }
         else
         {
@@ -162,12 +164,18 @@ public class PlayerMovement : MonoBehaviour
 
         #endregion
 
-        if (!isGrounded)
-            return;
+        #region Holding Jump
+        if (Input.GetKey(KeyCode.Space) || Input.GetKey(KeyCode.UpArrow))
+            isHoldingJump = true;
+        else
+            isHoldingJump = false;
+        #endregion
+
 
         // Player jump input
-        if (Input.GetKeyDown(KeyCode.Space) || Input.GetKeyDown(KeyCode.UpArrow))
+        if (coyoteTimeCounter > 0f && Input.GetKeyDown(KeyCode.Space) || Input.GetKeyDown(KeyCode.UpArrow))
         {
+            Debug.Log("jump");
             animController.SetTrigger("Jump");
 
             // Calculate Velocity
@@ -181,11 +189,21 @@ public class PlayerMovement : MonoBehaviour
             // Set jump cooldown
             jumpCounter = jumpCooldown;
         } 
+
+        if (Input.GetKeyUp(KeyCode.Space) || Input.GetKeyUp(KeyCode.UpArrow))
+        {
+            coyoteTimeCounter = 0f;
+        }
     }
 
 
     void Fall()
     {
+        if (!isHoldingJump && rb.velocity.y > 0f)
+        {
+            rb.AddForce(new Vector2(0f, -10f));
+        }
+
         if (rb.velocity.y < -20f && !isGrounded)
         {
             isFalling = true;
