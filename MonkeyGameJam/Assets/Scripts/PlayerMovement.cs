@@ -2,13 +2,14 @@ using System.Collections;
 using System.Collections.Generic;
 using TMPro;
 using UnityEngine;
+using UnityEngine.UI;
 
 public class PlayerMovement : MonoBehaviour
 {
     [Header("Movement")]
     [SerializeField] float speed = 1f;
-    [SerializeField] float maxSpeed = 10f;
-    [SerializeField] float maxVelocityChange = 10f;
+    [SerializeField] float fastSpeed = 1f;
+    private bool badBanana = false;
     
 
     [Header("Jump")]
@@ -28,6 +29,8 @@ public class PlayerMovement : MonoBehaviour
     [SerializeField] float eatCooldown = 0.5f;
     private float currentEatCooldown;
     [SerializeField] TextMeshProUGUI displayBananaCount;
+    [SerializeField] GameObject bananaYellow;
+    [SerializeField] GameObject bananaRed;
 
     [Header("Detect Wall")]
     [SerializeField] float checkWallDistance = 0.1f;
@@ -136,6 +139,10 @@ public class PlayerMovement : MonoBehaviour
             {
                 rb.velocity = Vector2.zero;
 
+                badBanana = false;
+                bananaRed.SetActive(false);
+                bananaYellow.SetActive(true);
+
                 currentEatCooldown = eatCooldown;
                 currentBanana--;
                 displayBananaCount.text = currentBanana.ToString();
@@ -154,7 +161,14 @@ public class PlayerMovement : MonoBehaviour
             return;
         }
 
-        rb.velocity = new Vector2(transform.right.x * speed, rb.velocity.y);
+        if (badBanana)
+        {
+            rb.velocity = new Vector2(transform.right.x * fastSpeed, rb.velocity.y);
+        }
+        else
+        {
+            rb.velocity = new Vector2(transform.right.x * speed, rb.velocity.y);
+        }
     }
 
     void Flip()
@@ -306,11 +320,26 @@ public class PlayerMovement : MonoBehaviour
         if (currentBanana < maxBanana)
         {
             currentBanana = maxBanana;
+
             displayBananaCount.text = currentBanana.ToString();
             audioRestock.Play();
         }
     }
 
+    public void FastSpeed()
+    {
+        if (!badBanana)
+        {
+            currentBanana++;
+            displayBananaCount.text = currentBanana.ToString();
+            audioRestock.Play();
+        }
+
+        badBanana = true;
+
+        bananaRed.SetActive(true);
+        bananaYellow.SetActive(false);
+    }
 
     void Sounds()
     {
