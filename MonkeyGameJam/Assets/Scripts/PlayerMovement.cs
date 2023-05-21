@@ -78,7 +78,9 @@ public class PlayerMovement : MonoBehaviour
         GroundCheck();
 
         Fall();
-        Jump();
+
+        CoyoteAndJumpBuffer();
+        
 
         EatBanana();
 
@@ -91,6 +93,7 @@ public class PlayerMovement : MonoBehaviour
     private void FixedUpdate()
     {
         Movement();
+        Jump();
         //Gravity();
     }
 
@@ -182,7 +185,7 @@ public class PlayerMovement : MonoBehaviour
         }
     }
 
-    void Jump()
+    void CoyoteAndJumpBuffer()
     {
         #region Coyote and Jump Buffer Timers
 
@@ -218,7 +221,14 @@ public class PlayerMovement : MonoBehaviour
             isHoldingJump = false;
         #endregion
 
+        if (Input.GetKeyUp(KeyCode.Space) || Input.GetKeyUp(KeyCode.UpArrow))
+        {
+            coyoteTimeCounter = 0f;
+        }
+    }
 
+    void Jump()
+    {
         if (currentEatCooldown > 0f)
             return;
 
@@ -241,22 +251,18 @@ public class PlayerMovement : MonoBehaviour
             jumpBufferCounter = 0f;
         } 
 
-        if (Input.GetKeyUp(KeyCode.Space) || Input.GetKeyUp(KeyCode.UpArrow))
-        {
-            coyoteTimeCounter = 0f;
-        }
+        
     }
 
     void Fall()
     {
-        if (!isHoldingJump && rb.velocity.y > 0f)
+        if (!isHoldingJump && rb.velocity.y > 0f && !isGrounded)
         {
             rb.AddForce(new Vector2(0f, reduceVelocity));
         }
 
         if (rb.velocity.y < -20f && !isGrounded)
         {
-            
             isFalling = true;
         }
     }
