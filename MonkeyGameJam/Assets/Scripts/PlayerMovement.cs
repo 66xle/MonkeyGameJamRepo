@@ -1,5 +1,6 @@
 using System.Collections;
 using System.Collections.Generic;
+using TMPro;
 using UnityEngine;
 
 public class PlayerMovement : MonoBehaviour
@@ -19,6 +20,13 @@ public class PlayerMovement : MonoBehaviour
     [SerializeField] float jumpBufferTime;
     private float jumpBufferCounter;
     private bool isHoldingJump = false;
+
+    [Header("Banana")]
+    [SerializeField] int maxBanana = 3;
+    private int currentBanana;
+    [SerializeField] float eatCooldown = 0.5f;
+    private float currentEatCooldown;
+    [SerializeField] TextMeshProUGUI displayBananaCount;
 
     [Header("Detect Wall")]
     [SerializeField] float checkWallDistance = 0.1f;
@@ -51,6 +59,7 @@ public class PlayerMovement : MonoBehaviour
         rb = GetComponent<Rigidbody2D>();
         animController = GetComponent<Animator>();
         rb.gravityScale = gravityScale;
+        currentBanana = maxBanana;
     }
 
     // Update is called once per frame
@@ -62,6 +71,8 @@ public class PlayerMovement : MonoBehaviour
 
         Fall();
         Jump();
+
+        EatBanana();
 
         StandStill();
         SwitchDirection();
@@ -81,7 +92,7 @@ public class PlayerMovement : MonoBehaviour
 
     void StandStill()
     {
-        if (!isStandingStill)
+        if (!isStandingStill || currentEatCooldown > 0f)
             return;
 
         input = Input.GetAxisRaw("Horizontal");
@@ -94,6 +105,33 @@ public class PlayerMovement : MonoBehaviour
 
         isStandingStill = false;
         animController.SetBool("isIdle", false);
+    }
+
+    void EatBanana()
+    {
+        if (currentEatCooldown > 0f)
+        {
+            currentEatCooldown -= Time.deltaTime;
+        }
+
+        if (!isGrounded)
+            return;
+
+        if (Input.GetKeyDown(KeyCode.S) || Input.GetKeyDown(KeyCode.DownArrow))
+        {
+            if (currentBanana > 0 && currentEatCooldown <= 0f)
+            {
+                rb.velocity = Vector2.zero;
+
+                currentEatCooldown = eatCooldown;
+                currentBanana--;
+                displayBananaCount.text = currentBanana.ToString();
+                animController.SetTrigger("EatBanana");
+
+                animController.SetBool("isIdle", true);
+                isStandingStill = true;
+            }
+        }
     }
 
     void Movement()
@@ -171,6 +209,9 @@ public class PlayerMovement : MonoBehaviour
         #endregion
 
 
+        if (currentEatCooldown > 0f)
+            return;
+
         // Player jump input
         if (coyoteTimeCounter > 0f && jumpBufferCounter > 0f)
         {
@@ -195,7 +236,6 @@ public class PlayerMovement : MonoBehaviour
             coyoteTimeCounter = 0f;
         }
     }
-
 
     void Fall()
     {
@@ -245,4 +285,10 @@ public class PlayerMovement : MonoBehaviour
         }
     }
 
+
+    public void RefillBanana()
+    {
+        currentBanana = maxBanana;
+        displayBananaCount.text = currentBanana.ToString();
+    }
 }
