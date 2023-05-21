@@ -163,6 +163,7 @@ public class PlayerMovement : MonoBehaviour
 
         animController.SetBool("isIdle", true);
         isStandingStill = true;
+        isDead = false;
     }
 
     void Movement()
