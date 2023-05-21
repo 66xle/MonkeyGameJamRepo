@@ -243,7 +243,7 @@ GameObject:
   m_Icon: {fileID: 0}
   m_NavMeshLayer: 0
   m_StaticEditorFlags: 0
-  m_IsActive: 0
+  m_IsActive: 1
 --- !u!224 &87569681
 RectTransform:
   m_ObjectHideFlags: 0
@@ -1281,7 +1281,7 @@ MonoBehaviour:
   m_OnCullStateChanged:
     m_PersistentCalls:
       m_Calls: []
-  m_text: Samuel Le
+  m_text: Samuel Le {66xle}
   m_isRightToLeft: 0
   m_fontAsset: {fileID: 11400000, guid: 230afe22079152c4da8543c1e81f4726, type: 2}
   m_sharedMaterial: {fileID: -546338065748760408, guid: 230afe22079152c4da8543c1e81f4726, type: 2}
