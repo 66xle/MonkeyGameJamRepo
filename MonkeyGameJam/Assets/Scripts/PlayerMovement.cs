@@ -147,6 +147,7 @@ public class PlayerMovement : MonoBehaviour
                 currentBanana--;
                 displayBananaCount.text = currentBanana.ToString();
                 animController.SetTrigger("EatBanana");
+                animController.SetBool("Fire", false);
 
                 animController.SetBool("isIdle", true);
                 isStandingStill = true;
@@ -336,7 +337,7 @@ public class PlayerMovement : MonoBehaviour
         }
 
         badBanana = true;
-        animController.SetTrigger("FireRun");
+        animController.SetBool("Fire", true);
 
         bananaRed.SetActive(true);
         bananaYellow.SetActive(false);
