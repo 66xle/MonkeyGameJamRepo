@@ -3,11 +3,13 @@ using System.Collections.Generic;
 using UnityEditor;
 using UnityEngine;
 using UnityEngine.SceneManagement;
+using UnityEngine.UI;
 
 public class PauseMenu : MonoBehaviour
 {
     [SerializeField] GameObject menu;
     [SerializeField] AudioSource music;
+    [SerializeField] Slider sliderMusic;
 
     private bool isMusicEnabled = true;
 
@@ -19,6 +21,8 @@ public class PauseMenu : MonoBehaviour
             Time.timeScale = 0;
             Cursor.visible = true;
         }
+
+        Music();
     }
     public void Resume()
     {
@@ -30,20 +34,11 @@ public class PauseMenu : MonoBehaviour
     public void Menu()
     {
         SceneManager.LoadScene(0);
-        Time.timeScale = 1;
+        Time.timeScale = 1f;
     }
 
     public void Music()
     {
-        if (isMusicEnabled)
-        {
-            isMusicEnabled = false;
-            music.volume = 0;
-        }
-        else
-        {
-            isMusicEnabled = true;
-            music.volume = 1;
-        }
+        music.volume = sliderMusic.value;
     }
 }

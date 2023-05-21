@@ -31,6 +31,7 @@ public class PlayerMovement : MonoBehaviour
     [SerializeField] TextMeshProUGUI displayBananaCount;
     [SerializeField] GameObject bananaYellow;
     [SerializeField] GameObject bananaRed;
+    private bool earlyEat = false;
 
     [Header("Detect Wall")]
     [SerializeField] float checkWallDistance = 0.1f;
@@ -60,6 +61,7 @@ public class PlayerMovement : MonoBehaviour
     private bool isFlipped = false;
     public bool isStandingStill = true;
     private bool isFalling = false;
+    private bool isDead = false;
 
     private Animator animController;
     private Rigidbody2D rb;
@@ -108,7 +110,7 @@ public class PlayerMovement : MonoBehaviour
 
     void StandStill()
     {
-        if (!isStandingStill || currentEatCooldown > 0f)
+        if (!isStandingStill || isDead || currentEatCooldown > 0f)
             return;
 
         input = Input.GetAxisRaw("Horizontal");
@@ -130,29 +132,37 @@ public class PlayerMovement : MonoBehaviour
             currentEatCooldown -= Time.deltaTime;
         }
 
-        if (!isGrounded)
-            return;
-
         if (Input.GetKeyDown(KeyCode.S) || Input.GetKeyDown(KeyCode.DownArrow))
         {
+            if (!isGrounded)
+            {
+                earlyEat = true;
+                return;
+            }
+
             if (currentBanana > 0 && currentEatCooldown <= 0f)
             {
-                rb.velocity = Vector2.zero;
-
-                badBanana = false;
-                bananaRed.SetActive(false);
-                bananaYellow.SetActive(true);
-
-                currentEatCooldown = eatCooldown;
-                currentBanana--;
-                displayBananaCount.text = currentBanana.ToString();
-                animController.SetTrigger("EatBanana");
-                animController.SetBool("Fire", false);
-
-                animController.SetBool("isIdle", true);
-                isStandingStill = true;
+                Eat();
             }
         }
+    }
+
+    void Eat()
+    {
+        rb.velocity = Vector2.zero;
+
+        badBanana = false;
+        bananaRed.SetActive(false);
+        bananaYellow.SetActive(true);
+
+        currentEatCooldown = eatCooldown;
+        currentBanana--;
+        displayBananaCount.text = currentBanana.ToString();
+        animController.SetTrigger("EatBanana");
+        animController.SetBool("Fire", false);
+
+        animController.SetBool("isIdle", true);
+        isStandingStill = true;
     }
 
     void Movement()
@@ -244,7 +254,7 @@ public class PlayerMovement : MonoBehaviour
 
     void Jump()
     {
-        if (currentEatCooldown > 0f)
+        if (currentEatCooldown > 0f || isDead)
             return;
 
         // Player jump input
@@ -277,6 +287,7 @@ public class PlayerMovement : MonoBehaviour
         if (rb.velocity.y < -20f && !isGrounded)
         {
             isFalling = true;
+            earlyEat = false;
         }
     }
 
@@ -297,8 +308,15 @@ public class PlayerMovement : MonoBehaviour
     {
         if (Physics2D.OverlapBox(transform.position + boxOffset, boxSize, 0f, layerGround))
         {
+
             isGrounded = true;
             animController.SetBool("isGrounded", true);
+
+            if (earlyEat)
+            {
+                Eat();
+                earlyEat = false;
+            }
 
             if (isFalling)
             {
@@ -306,6 +324,7 @@ public class PlayerMovement : MonoBehaviour
                 StartCoroutine(Slide());
 
                 isFalling = false;
+                isDead = true;
                 isStandingStill = true;
                 animController.SetBool("isIdle", true);
             }
@@ -351,6 +370,11 @@ public class PlayerMovement : MonoBehaviour
 
         bananaRed.SetActive(true);
         bananaYellow.SetActive(false);
+    }
+
+    public void Alive()
+    {
+        isDead = false;
     }
 
     void Sounds()
