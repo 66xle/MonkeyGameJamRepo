@@ -47,6 +47,10 @@ public class PlayerMovement : MonoBehaviour
     [SerializeField] List<AudioClip> grassFootsteps;
     private int grassFootstepIndex;
     [SerializeField] AudioSource audioGrassFS;
+    [SerializeField] AudioSource audioFall;
+    [SerializeField] AudioSource audioJump;
+    [SerializeField] AudioSource audioEat;
+    [SerializeField] AudioSource audioRestock;
 
     float input;
 
@@ -221,13 +225,13 @@ public class PlayerMovement : MonoBehaviour
         // Player jump input
         if (coyoteTimeCounter > 0f && jumpBufferCounter > 0f)
         {
-            Debug.Log("jump");
             animController.SetTrigger("Jump");
+            audioJump.Play();
 
             // Calculate Velocity
             rb.gravityScale = gravityScale;
             float velocity = Mathf.Sqrt(jumpHeight * (Physics2D.gravity.y * rb.gravityScale) * -2) * rb.mass;
-            //velocity += -rb.velocity.y; // Cancel out current velocity
+            velocity += -rb.velocity.y; // Cancel out current velocity
 
             // Jump
             rb.AddForce(new Vector2(0f, velocity), ForceMode2D.Impulse);
@@ -252,6 +256,7 @@ public class PlayerMovement : MonoBehaviour
 
         if (rb.velocity.y < -20f && !isGrounded)
         {
+            
             isFalling = true;
         }
     }
@@ -278,6 +283,7 @@ public class PlayerMovement : MonoBehaviour
 
             if (isFalling)
             {
+                audioFall.Play();
                 rb.velocity = Vector2.zero;
                 isFalling = false;
                 isStandingStill = true;
@@ -293,8 +299,12 @@ public class PlayerMovement : MonoBehaviour
 
     public void RefillBanana()
     {
-        currentBanana = maxBanana;
-        displayBananaCount.text = currentBanana.ToString();
+        if (currentBanana < maxBanana)
+        {
+            currentBanana = maxBanana;
+            displayBananaCount.text = currentBanana.ToString();
+            audioRestock.Play();
+        }
     }
 
 
@@ -315,5 +325,10 @@ public class PlayerMovement : MonoBehaviour
             audioGrassFS.clip = grassFootsteps[grassFootstepIndex];
             audioGrassFS.Play();
         }
+    }
+
+    void GulpSound()
+    {
+        audioEat.Play();
     }
 }
