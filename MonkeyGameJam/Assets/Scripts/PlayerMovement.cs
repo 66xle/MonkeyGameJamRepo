@@ -49,6 +49,7 @@ public class PlayerMovement : MonoBehaviour
     {
         rb = GetComponent<Rigidbody2D>();
         animController = GetComponent<Animator>();
+        rb.gravityScale = gravityScale;
     }
 
     // Update is called once per frame
