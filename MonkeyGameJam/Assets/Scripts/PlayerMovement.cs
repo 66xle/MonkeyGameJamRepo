@@ -155,7 +155,6 @@ public class PlayerMovement : MonoBehaviour
         if (Input.GetKeyDown(KeyCode.Space) || Input.GetKeyDown(KeyCode.UpArrow))
         {
             jumpBufferCounter = jumpBufferTime;
-            Debug.Log(coyoteTimeCounter);
         }
         else
         {
@@ -173,7 +172,7 @@ public class PlayerMovement : MonoBehaviour
 
 
         // Player jump input
-        if (coyoteTimeCounter > 0f && Input.GetKeyDown(KeyCode.Space) || Input.GetKeyDown(KeyCode.UpArrow))
+        if (coyoteTimeCounter > 0f && jumpBufferCounter > 0f)
         {
             Debug.Log("jump");
             animController.SetTrigger("Jump");
@@ -188,6 +187,7 @@ public class PlayerMovement : MonoBehaviour
 
             // Set jump cooldown
             jumpCounter = jumpCooldown;
+            jumpBufferCounter = 0f;
         } 
 
         if (Input.GetKeyUp(KeyCode.Space) || Input.GetKeyUp(KeyCode.UpArrow))
